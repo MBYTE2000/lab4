@@ -1,60 +1,63 @@
 ﻿#include <iostream>
+#include <math.h>
+#include <conio.h>
 #include <iomanip>
-#include <math.h> 
+
 using namespace std;
+typedef double (*uf)(double, double, int&);
+void tabl(double, double, double, double, uf, uf);
+double y(double, double, int&);
+double s(double, double, int&);
 
 
-typedef double (*TFun)(double);
-double fun1(double);			
-double fun2(double);
-void OutRez(TFun f, double x, double b, double h, int n);
-
-int main() {
-	setlocale(LC_ALL, "ru");
-	double a=0.1, b=1, h=0.1;
-	int n = 10;
-
-
-	puts("Введите a,b,h,n");
-	//cin >> a, b, h, n;
-	cout << "\n\t Function - 2*pow(cos(r-1), 2)\n";
-	OutRez(fun1, a, b, h, n);
-	cout << "\n\t Function - pow(sin(r), 2)\n";
-	OutRez(fun2, a, b, h, n);
-	return 0;
-}
-
-
-double fun1(double r) {
-	return 2*pow(cos(r-1), 2);
-}
-double fun2(double r) {
-	return pow(sin(r), 2);
-}
-
-
-void OutRez(TFun f, double x, double b, double h, int n)
+int main()
 {
-	for (int i = 0; i < n; i++)
-	{
-		cout << "x=" << i << " y=" << f(x) << endl;
-	}
+    setlocale(LC_ALL, "ru");
+    double a = 0.2, b = 0.8, h = 0, ep = 0;
+    cout << "Нажмите 1 для автоматического ввода\n";
 
-	/*double p, s, y, m, fa;
-	do
-	{
-		p = 1;
-		s = fa = 0;
-		for (int i = 1; i <= n; i++)
-		{
-			p *= -((2*x)*(2*x));
-			fa += 2*i;
-			s += p / fa;
-		}
-		y = f(x);
-		m = abs(y - s);
-		cout << setw(15) << x << setw(15) << y << setw(15) << s << setw(15) << m << endl;
-		x += h;
-	} while (x <= b + h / 2.);*/
+    if (_getch() == '1') {
+        cout << "Введите е: "; cin >> ep;
+        h = (b - a) / 10;
+    }
+    else {
+        cout << "Введите a, b, h, e" << endl;
+        cin >> a >> b >> h >> ep;
+    }
+
+    cout << setw(10) << "X" << setw(15) << "Y(x)" << setw(15) << "S(x)" << setw(8) << "k" << endl;
+    tabl(a, b, h, ep, y, s);
+    cout << endl;
+    return 0;
 }
 
+void tabl(double a, double b, double h, double eps, uf fun, uf fun2)
+{
+    int k = 0;
+    double sum = 0, sum2 = 0;
+    for (double x = a; x < b + h / 2; x += h)
+    {
+        sum = fun(x, eps, k);
+        sum2 = fun2(x, eps, k);
+        cout << setw(10) << x << setw(15) << sum << setw(15) << sum2 << setw(8) << k << endl;
+    }
+}
+
+double y(double x, double eps, int& k)
+{
+    return 2*(pow(cos(x), 2)-1);
+}
+
+double s(double x, double eps, int& k)
+{
+    double a = 1, c = 1, sum = 0;
+    k = 1;
+    while (fabs(c) > eps)
+    {
+        c = -2*x*2*x / ((2 * k - 1) * 2 * k);
+        a *= c;
+        sum += a;
+        k++;
+    }
+    return sum;
+}
